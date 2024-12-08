@@ -6,6 +6,9 @@ myCurrency.log('USD')
 myCurrency.convert('USD', 'THB', 1)
 
 const main = async () => {
+    console.log((await myCurrency.latest).amount)
+    console.log((await myCurrency.latest).amount)
+    console.log((await myCurrency.latest).amount)
     await myCurrency.convert("USD", 'THB', 1).then(console.log)
     await myCurrency.convert('USD', 'THB', 2).then(console.log)
     await myCurrency.convert('USD', 'THB', 3).then(console.log)

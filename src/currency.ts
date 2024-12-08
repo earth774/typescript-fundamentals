@@ -5,30 +5,53 @@ interface CurrencyResult<T extends string> {
     rates: Record<T, number>
 }
 
-export function cache
-    (method: Function, context: unknown) {
-    // @ts-ignore
-    return async function a(
-        this,
-        from: string,
-        to: string,
-        amount: number
-    ) {
-        const key = `${from}${to}`;
+export function cache(key: string = null): any {
+    return function decorator(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+        const originalMethod = descriptor.value || descriptor.get;
 
-        if (this.caches[key]) {
-            return this.caches[key] * amount
+        if (!originalMethod) {
+            throw new Error('@cache can only be applied to methods or getters.');
         }
 
-        const result = await method.bind(this)(from, to, amount)
+        const isGetter = !!descriptor.get;
 
-        const rate = result.rates[to];
+        // Wrap the original function or getter
+        if (isGetter) {
+            descriptor.get = function (this: any) {
+                if (key && this.caches[key]) {
+                    console.log(`Cache hit for key: ${key}`);
+                    return this.caches[key];
+                }
 
-        this.caches[key] = rate / result.amount
+                console.log(`Cache miss for key: ${key}`);
+                const result = originalMethod.apply(this);
 
-        return rate
-        // return method(from, to, amount)
-    }
+                // Cache the result
+                if (key) {
+                    this.caches[key] = result;
+                }
+
+                return result;
+            };
+        } else {
+            descriptor.value = async function (this: any, ...args: any[]) {
+                const cacheKey = (`${args[0]}${args[1]}`);
+
+                if (this.caches[cacheKey]) {
+                    console.log(`Cache hit for key: ${cacheKey}`);
+                    return this.caches[cacheKey];
+                }
+
+                console.log(`Cache miss for key: ${cacheKey}`);
+                const result = await originalMethod.apply(this, args);
+
+                // Cache the result
+                this.caches[cacheKey] = result;
+
+                return result;
+            };
+        }
+    };
 }
 
 export default class Converter<
@@ -40,7 +63,7 @@ export default class Converter<
     constructor(public currencies: Currencies) {
     }
 
-    @cache
+    @cache()
     async convert<To extends Values>(
         from: Values,
         to: To,
@@ -58,7 +81,8 @@ export default class Converter<
 
     }
 
-    get latest() {
+    @cache('latests')
+    get latest(): Promise<any> {
         return fetch(`${this.api}/latest`).then((x) => x.json())
     }
 }
