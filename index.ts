@@ -9,7 +9,7 @@ interface CurrencyResult {
 
 
 
-class Currency<Currencies extends string[]> {
+class Currency<const Currencies> {
     api = 'https://api.frankfurter.app'
     constructor(public currencies: Currencies) {
     }
@@ -20,10 +20,15 @@ class Currency<Currencies extends string[]> {
             .then((a) => a)
     }
 
-    log(currency: Currencies) {
+    log(currency: Currencies[keyof Currencies]) {
 
     }
 }
+
+const myCurrency = new Currency(['USD', 'JPY', 'THB'])
+
+myCurrency.log('USD')
+myCurrency.convert('USD', 'THB', 1).then(console.log)
 
 // const api = 'https://api.frankfurter.app'
 
