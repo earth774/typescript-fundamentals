@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "dev":"nodemon --config nodemon.json",
+    "build":"tsc"
+  },
+  "dependencies": {
+    "nodemon": "^3.1.7"
+  }
+}
