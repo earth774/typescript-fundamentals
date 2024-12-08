@@ -16,9 +16,9 @@ function cache
     ) {
         const key = `${from}${to}`;
 
-        // if (this.caches[key]) {
-        //     return this.caches[key] * amount
-        // }
+        if (this.caches[key]) {
+            return this.caches[key] * amount
+        }
 
         const result = await method.bind(this)(from, to, amount)
 
@@ -63,7 +63,19 @@ class Currency<
     }
 }
 
-const myCurrency = new Currency(['USD', 'JPY', 'THB'])
+class MyCurrency<
+    const Currencies extends readonly string[] = [],
+    Values extends string = Extract<Currencies[keyof Currencies], string>
+> extends Currency<Currencies, Values> {
+    constructor(
+        public currencies: Currencies,
+        public api = 'https://api.frankfurter.app'
+    ) {
+        super(currencies);
+    }
+}
+
+const myCurrency = new MyCurrency(['USD', 'JPY', 'THB'])
 
 myCurrency.log('USD')
 
