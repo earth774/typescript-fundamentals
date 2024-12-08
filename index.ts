@@ -23,12 +23,17 @@ class Currency<const Currencies> {
     log(currency: Currencies[keyof Currencies]) {
 
     }
+
+    get latest() {
+        return fetch(`${this.api}/latest`).then((x) => x.json())
+    }
 }
 
 const myCurrency = new Currency(['USD', 'JPY', 'THB'])
 
 myCurrency.log('USD')
 myCurrency.convert('USD', 'THB', 1).then(console.log)
+myCurrency.latest.then(console.log)
 
 // const api = 'https://api.frankfurter.app'
 
